@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Book Catalog - Library Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Search and Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form class="d-flex" method="GET">
+                <input type="search" name="search" class="form-control me-2" placeholder="Search by title, author, or ISBN..." value="{{ request.args.get('search', '') }}">
+                <button class="btn btn-outline-primary" type="submit">
+                    <i class="fas fa-search me-1"></i>Search
+                </button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" name="category" onchange="this.form.submit()">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if request.args.get('category')|int == category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Books Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for book in books %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-1">{{ book.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">by {{ book.author }}</h6>
+                    <p class="card-text">{{ book.description[:150] }}{% if book.description|length > 150 %}...{% endif %}</p>
+                    <div class="mb-2">
+                        <span class="badge bg-info me-2">{{ book.category.name }}</span>
+                        <span class="badge {% if book.available_quantity > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if book.available_quantity > 0 %}
+                                {{ book.available_quantity }} of {{ book.quantity }} Available
+                            {% else %}
+                                Currently Unavailable
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">ISBN: {{ book.isbn }}</small>
+                        <a href="{{ url_for('core.book_detail', book_id=book.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if books.pages > 1 %}
+    <nav aria-label="Book catalog pages" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if books.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('core.catalog', page=books.prev_num, **request.args) }}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for page_num in books.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == books.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('core.catalog', page=page_num, **request.args) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if books.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('core.catalog', page=books.next_num, **request.args) }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

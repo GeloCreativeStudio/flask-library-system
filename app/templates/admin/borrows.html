@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Manage Borrows{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table-responsive {
+        margin-top: 20px;
+    }
+    .filter-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+    .status-borrowed {
+        color: #0d6efd;
+    }
+    .status-returned {
+        color: #198754;
+    }
+    .status-overdue {
+        color: #dc3545;
+    }
+    .fine-amount {
+        font-weight: bold;
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Manage Borrows</h2>
+    
+    <!-- Filters -->
+    <div class="filter-section">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if request.args.get('status') == 'all' %}selected{% endif %}>All</option>
+                    <option value="borrowed" {% if request.args.get('status') == 'borrowed' %}selected{% endif %}>Borrowed</option>
+                    <option value="returned" {% if request.args.get('status') == 'returned' %}selected{% endif %}>Returned</option>
+                    <option value="overdue" {% if request.args.get('status') == 'overdue' %}selected{% endif %}>Overdue</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="overdue" value="true" 
+                           {% if request.args.get('overdue') %}checked{% endif %}
+                           onchange="this.form.submit()" id="overdueCheck">
+                    <label class="form-check-label" for="overdueCheck">
+                        Show Only Overdue
+                    </label>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Borrows Table -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>User</th>
+                    <th>Borrowed Date</th>
+                    <th>Due Date</th>
+                    <th>Returned Date</th>
+                    <th>Status</th>
+                    <th>Fine</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for borrow in borrows %}
+                <tr>
+                    <td>{{ borrow.book.title }}</td>
+                    <td>{{ borrow.user.name }}</td>
+                    <td>{{ borrow.borrowed_at.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ borrow.due_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ borrow.returned_at.strftime('%Y-%m-%d') if borrow.returned_at else 'Not returned' }}</td>
+                    <td>
+                        {% if borrow.status == 'overdue' %}
+                            <span class="badge bg-danger">Overdue</span>
+                            <small class="d-block text-danger mt-1">{{ (datetime.utcnow() - borrow.due_date).days }} days</small>
+                        {% elif borrow.status == 'returned' %}
+                            <span class="badge bg-secondary">Returned</span>
+                            {% if borrow.returned_at > borrow.due_date %}
+                                <small class="d-block text-danger mt-1">{{ (borrow.returned_at - borrow.due_date).days }} days late</small>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-success">Active</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if borrow.fine_amount > 0 %}
+                            <span class="fine-amount">₱{{ "%.2f"|format(borrow.fine_amount) }}</span>
+                            {% if borrow.status == 'overdue' %}
+                                <small class="d-block text-danger">(Accumulating)</small>
+                            {% endif %}
+                        {% else %}
+                            ₱0.00
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if borrow.status == 'borrowed' %}
+                            <button class="btn btn-sm btn-success" onclick="markAsReturned({{ borrow.id }})">
+                                <i class="fas fa-check me-1"></i>Return
+                            </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function markAsReturned(borrowId) {
+        if (confirm('Are you sure you want to mark this book as returned?')) {
+            fetch(`/admin/borrows/${borrowId}/return`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => Promise.reject(data.message));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + (error.message || 'Failed to mark book as returned'));
+            });
+        }
+    }
+
+    // Display flash messages
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                alert('{{ message }}');
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</script>
+{% endblock %}

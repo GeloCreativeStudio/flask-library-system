@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Library Management System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="mb-3">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </h2>
+            <p class="text-muted">Welcome back, {{ current_user.name }}!</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">
+                        <i class="fas fa-book me-2"></i>Books Borrowed
+                    </h5>
+                    <p class="display-4">{{ current_user.borrowed_books|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-clock me-2"></i>Due Soon
+                    </h5>
+                    <p class="display-4">{{ due_soon|default(0) }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-info">
+                        <i class="fas fa-history me-2"></i>Total Borrowed
+                    </h5>
+                    <p class="display-4">{{ total_borrowed|default(0) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Currently Borrowed Books -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-book-reader me-2"></i>Currently Borrowed Books
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.borrowed_books %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Borrowed Date</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for borrow in current_user.borrowed_books %}
+                                    <tr>
+                                        <td>{{ borrow.book.title }}</td>
+                                        <td>{{ borrow.book.author }}</td>
+                                        <td>{{ borrow.borrowed_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>{{ borrow.due_date.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            {% if borrow.status == 'overdue' %}
+                                                <span class="badge bg-danger">Overdue</span>
+                                            {% elif borrow.status == 'returned' %}
+                                                <span class="badge bg-secondary">Returned</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">You haven't borrowed any books yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('core.catalog') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search me-2"></i>Browse Catalog
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('core.my_books') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-book me-2"></i>My Books
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

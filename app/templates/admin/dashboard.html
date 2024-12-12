@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Library Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Books</h5>
+                    <p class="card-text display-6">{{ total_books }}</p>
+                    <a href="{{ url_for('admin.books') }}" class="text-white">
+                        <i class="fas fa-arrow-right"></i> Manage Books
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text display-6">{{ total_users }}</p>
+                    <a href="{{ url_for('admin.users') }}" class="text-white">
+                        <i class="fas fa-arrow-right"></i> View Users
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Active Borrows</h5>
+                    <p class="card-text display-6">{{ active_borrows }}</p>
+                    <a href="{{ url_for('admin.borrows') }}" class="text-white">
+                        <i class="fas fa-arrow-right"></i> View Borrows
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Overdue Books</h5>
+                    <p class="card-text display-6">{{ overdue_borrows }}</p>
+                    <a href="{{ url_for('admin.borrows') }}?overdue=true" class="text-white">
+                        <i class="fas fa-arrow-right"></i> View Overdue
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Statistics -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Category Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Total Books</th>
+                            <th>Currently Borrowed</th>
+                            <th>Available</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in category_stats %}
+                        <tr>
+                            <td>{{ stat.category.name }}</td>
+                            <td>{{ stat.total_books }}</td>
+                            <td>{{ stat.borrowed }}</td>
+                            <td>{{ stat.total_books - stat.borrowed }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin.books') }}" class="btn btn-primary">
+                            <i class="fas fa-book me-2"></i>Add New Book
+                        </a>
+                        <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary">
+                            <i class="fas fa-tags me-2"></i>Manage Categories
+                        </a>
+                        <a href="{{ url_for('admin.borrows') }}" class="btn btn-info text-white">
+                            <i class="fas fa-clipboard-list me-2"></i>View All Borrows
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Borrows
+                            <span class="badge bg-primary rounded-pill">{{ total_borrows }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Active Borrows
+                            <span class="badge bg-success rounded-pill">{{ active_borrows }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Overdue Books
+                            <span class="badge bg-danger rounded-pill">{{ overdue_borrows }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any dashboard-specific JavaScript here
+    $(document).ready(function() {
+        // Example: Refresh dashboard data every 5 minutes
+        setInterval(function() {
+            location.reload();
+        }, 300000);
+    });
+</script>
+{% endblock %}
