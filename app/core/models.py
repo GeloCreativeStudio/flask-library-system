@@ -44,7 +44,7 @@ class User(UserMixin, db.Model):
     address = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
-    borrowed_books = db.relationship('BorrowRecord', backref='user', lazy=True)
+    borrowed_books = db.relationship('BorrowRecord', backref='user', lazy=True, cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -62,7 +62,8 @@ class Category(db.Model):
 class Book(db.Model):
     __tablename__ = 'book'
     id = db.Column(db.Integer, primary_key=True)
-    isbn = db.Column(db.String(13), unique=True, nullable=False)
+    isbn = db.Column(db.String(13), unique=True, nullable=True)
+    local_id = db.Column(db.String(20), unique=True, nullable=False)
     title = db.Column(db.String(200), nullable=False)
     author = db.Column(db.String(100), nullable=False)
     publisher = db.Column(db.String(100))
@@ -72,12 +73,35 @@ class Book(db.Model):
     quantity = db.Column(db.Integer, default=1)
     available_quantity = db.Column(db.Integer, default=1)
     location = db.Column(db.String(50))  # Shelf or section location
+    cover_image = db.Column(db.String(500))  # URL to the book cover image
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
     borrow_records = db.relationship('BorrowRecord', backref='book', lazy=True)
 
     @property
     def is_available(self):
         return self.available_quantity > 0
+
+    @staticmethod
+    def generate_local_id():
+        """Generate a unique local ID for books without ISBN"""
+        # Format: LIB-YYYYMMDD-XXXX where XXXX is a sequential number
+        today = datetime.now().strftime('%Y%m%d')
+        base = f'LIB-{today}-'
+        
+        # Find the latest local_id for today
+        latest = Book.query.filter(
+            Book.local_id.like(f'{base}%')
+        ).order_by(Book.local_id.desc()).first()
+        
+        if latest and latest.local_id:
+            try:
+                seq = int(latest.local_id.split('-')[-1]) + 1
+            except ValueError:
+                seq = 1
+        else:
+            seq = 1
+            
+        return f'{base}{seq:04d}'
 
 class BorrowRecord(db.Model):
     __tablename__ = 'borrow_record'

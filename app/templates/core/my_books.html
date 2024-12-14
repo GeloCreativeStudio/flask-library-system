@@ -2,28 +2,124 @@
 
 {% block title %}My Books - Library Management System{% endblock %}
 
-{% block content %}
-<div class="container">
-    <h2 class="mb-4">
-        <i class="fas fa-book-reader me-2"></i>My Books
-    </h2>
+{% block extra_css %}
+<style>
+    .hero-section {
+        padding: 3rem 0;
+        background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+        margin-bottom: 2rem;
+    }
+    
+    .hero-section h1 {
+        color: #212529;
+        font-weight: 600;
+    }
+    
+    .hero-section p {
+        color: #6c757d;
+        font-size: 1.25rem;
+        max-width: 800px;
+        margin: 1rem auto;
+    }
+    
+    .books-section {
+        background: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .books-section .card-header {
+        background: transparent;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        padding: 1rem 1.5rem;
+    }
+    
+    .books-section .card-title {
+        color: #212529;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .books-section .card-body {
+        padding: 1.5rem;
+    }
+    
+    .table {
+        margin: 0;
+    }
+    
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        border-top: none;
+        padding: 1rem;
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+    }
+    
+    .btn-return {
+        padding: 0.5rem 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .btn-return:hover {
+        transform: translateX(2px);
+    }
+    
+    .fine-amount {
+        font-weight: 600;
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
 
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4">My Library Journey</h1>
+        <p class="lead">Track your reading adventures and manage your borrowed books all in one place.</p>
+    </div>
+</div>
+
+<div class="container">
     <!-- Active Loans -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Currently Borrowed Books</h5>
+    <div class="books-section">
+        <div class="card-header">
+            <h5 class="card-title">
+                <i class="fas fa-book-reader"></i>
+                Currently Borrowed Books
+            </h5>
         </div>
         <div class="card-body">
             {% if current_borrows %}
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Book Title</th>
                             <th>Borrowed Date</th>
                             <th>Due Date</th>
                             <th>Status</th>
-                            <th>Fine</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -33,14 +129,16 @@
                             <td>{{ borrow.book.title }}</td>
                             <td>{{ borrow.borrowed_at.strftime('%Y-%m-%d') }}</td>
                             <td>
-                                <span class="{% if borrow.is_overdue %}text-danger{% endif %}">
+                                <span class="{% if borrow.is_overdue %}text-danger fw-bold{% endif %}">
                                     {{ borrow.due_date.strftime('%Y-%m-%d') }}
                                 </span>
                             </td>
                             <td>
                                 {% if borrow.is_overdue %}
                                     <span class="badge bg-danger">Overdue</span>
-                                    <small class="d-block text-danger">Fine: ₱{{ "%.2f"|format(borrow.calculate_fine()) }}</small>
+                                    <div class="fine-amount mt-1">
+                                        Fine: ₱{{ "%.2f"|format(borrow.calculate_fine()) }}
+                                    </div>
                                 {% else %}
                                     <span class="badge bg-success">Active</span>
                                 {% endif %}
@@ -48,8 +146,9 @@
                             <td>
                                 <form method="POST" action="{{ url_for('core.return_book', borrow_id=borrow.id) }}" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-undo me-1"></i>Return
+                                    <button type="submit" class="btn btn-primary btn-return">
+                                        <i class="fas fa-undo"></i>
+                                        Return Book
                                     </button>
                                 </form>
                             </td>
@@ -65,14 +164,17 @@
     </div>
 
     <!-- Loan History -->
-    <div class="card">
-        <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">Borrowing History</h5>
+    <div class="books-section">
+        <div class="card-header">
+            <h5 class="card-title">
+                <i class="fas fa-history"></i>
+                Borrowing History
+            </h5>
         </div>
         <div class="card-body">
             {% if borrow_history %}
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Book Title</th>

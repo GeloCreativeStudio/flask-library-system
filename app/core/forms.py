@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, TextAreaField, SubmitField, BooleanField, IntegerField, DateField
-from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
-from app.core.models import Admin, User, Book
+from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, Optional, NumberRange
+from app.core.models import User, Book
 
 class AdminLoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -33,15 +33,22 @@ class UserLoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class BookForm(FlaskForm):
-    isbn = StringField('ISBN', validators=[DataRequired(), Length(max=13)])
-    title = StringField('Book Title', validators=[DataRequired(), Length(max=200)])
-    author = StringField('Author', validators=[DataRequired(), Length(max=100)])
-    publisher = StringField('Publisher', validators=[Length(max=100)])
-    publication_year = IntegerField('Publication Year')
-    category = SelectField('Category', coerce=int, validators=[DataRequired()])
-    description = TextAreaField('Description')
-    quantity = IntegerField('Quantity', validators=[DataRequired()])
-    location = StringField('Shelf Location', validators=[Length(max=50)])
+    isbn = StringField('ISBN', validators=[Optional(), Length(max=13)],
+                      description='Enter ISBN if available (13 digits)')
+    title = StringField('Title', validators=[DataRequired(), Length(max=200)],
+                       description='Book title (required)')
+    author = StringField('Author', validators=[DataRequired(), Length(max=100)],
+                        description='Book author (required)')
+    publisher = StringField('Publisher', validators=[Optional(), Length(max=100)],
+                          description='Publisher name')
+    publication_year = IntegerField('Publication Year', validators=[Optional()],
+                                  description='Year of publication')
+    description = TextAreaField('Description', validators=[Optional()],
+                              description='Book description')
+    quantity = IntegerField('Quantity', validators=[DataRequired(), NumberRange(min=1)],
+                          description='Number of copies available')
+    location = StringField('Location', validators=[Optional(), Length(max=50)],
+                         description='Shelf or section location')
     submit = SubmitField('Add Book')
 
     def validate_isbn(self, field):

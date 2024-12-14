@@ -2,49 +2,147 @@
 
 {% block title %}Login - Library Management System{% endblock %}
 
+{% block extra_css %}
+<style>
+    .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #20c997 0%, #0ca678 100%);
+        padding: 2rem 0;
+    }
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background-color: #ffffff;
+    }
+    .card-header {
+        border-bottom: none;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #20c997 0%, #12b886 100%);
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e1e5ea;
+        background-color: #ffffff;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        background-color: #ffffff;
+        border-color: #20c997;
+        box-shadow: 0 0 0 0.25rem rgba(32, 201, 151, 0.15);
+    }
+    .input-group-text {
+        background-color: #ffffff;
+        border-right: none;
+        color: #6c757d;
+    }
+    .btn-success {
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background: #20c997;
+        border: none;
+    }
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(32, 201, 151, 0.3);
+        background: #12b886;
+    }
+    .card-footer {
+        background: none;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .text-success {
+        color: #20c997 !important;
+    }
+    .text-success:hover {
+        color: #12b886 !important;
+    }
+    .back-link {
+        color: #6c757d;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .back-link:hover {
+        color: #495057;
+    }
+    .back-link i {
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white text-center py-3">
-                    <h4 class="mb-0">
-                        <i class="fas fa-user me-2"></i>Member Login
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('core.login') }}">
-                        {{ form.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control", placeholder="Enter your email") }}
-                            {% if form.email.errors %}
-                                {% for error in form.email.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="mb-4">
-                            {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control", placeholder="Enter your password") }}
-                            {% if form.password.errors %}
-                                {% for error in form.password.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="d-grid gap-2">
-                            {{ form.submit(class="btn btn-success btn-lg") }}
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer text-center py-3">
-                    <div class="mb-2">
-                        <span>Don't have an account? </span>
-                        <a href="{{ url_for('core.register') }}" class="text-success text-decoration-none">Register here</a>
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card">
+                    <div class="card-header text-white text-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user me-2"></i>Member Login
+                        </h4>
+                        <p class="text-light mb-0 mt-2 small">Welcome to our library community!</p>
                     </div>
-                    <a href="{{ url_for('core.index') }}" class="text-decoration-none">
-                        <i class="fas fa-arrow-left me-1"></i>Back to Home
+                    <div class="card-body p-4">
+                        <form method="POST" action="{{ url_for('core.login') }}">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-4">
+                                {{ form.email.label(class="form-label fw-bold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-envelope text-muted"></i>
+                                    </span>
+                                    {{ form.email(class="form-control border-start-0", placeholder="Enter your email") }}
+                                </div>
+                                {% if form.email.errors %}
+                                    {% for error in form.email.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="mb-4">
+                                {{ form.password.label(class="form-label fw-bold") }}
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-lock text-muted"></i>
+                                    </span>
+                                    {{ form.password(class="form-control border-start-0", placeholder="Enter your password") }}
+                                </div>
+                                {% if form.password.errors %}
+                                    {% for error in form.password.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="d-grid gap-2">
+                                {{ form.submit(class="btn btn-success btn-lg") }}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center py-3">
+                        <div class="mb-2">
+                            <span class="text-muted">Don't have an account? </span>
+                            <a href="{{ url_for('core.register') }}" class="text-success text-decoration-none fw-bold">Register here</a>
+                        </div>
+                        <a href="{{ url_for('core.index') }}" class="back-link">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to Home</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('core.index') }}" class="back-link">
+                        <i class="fas fa-home"></i>
+                        <span>Return to Library Homepage</span>
                     </a>
                 </div>
             </div>

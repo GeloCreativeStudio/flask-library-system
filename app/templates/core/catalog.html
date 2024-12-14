@@ -2,88 +2,243 @@
 
 {% block title %}Book Catalog - Library Management System{% endblock %}
 
+{% block extra_css %}
+<style>
+    .hero-section {
+        padding: 3rem 0;
+        background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+        margin-bottom: 2rem;
+    }
+    
+    .hero-section h1 {
+        color: #212529;
+        font-weight: 600;
+    }
+    
+    .hero-section p {
+        color: #6c757d;
+        font-size: 1.25rem;
+        max-width: 800px;
+        margin: 1rem auto;
+    }
+    
+    .search-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .search-input {
+        border-radius: 50px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border: 2px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .book-card {
+        height: 100%;
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: all 0.3s ease;
+    }
+    
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .book-cover {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+    
+    .book-info {
+        padding: 1.5rem;
+    }
+    
+    .book-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #212529;
+    }
+    
+    .book-meta {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .book-actions {
+        padding: 1rem 1.5rem;
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .filter-card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-card .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 1.5rem;
+    }
+    
+    .filter-card .card-body {
+        padding: 1rem 1.5rem;
+    }
+    
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .category-item {
+        padding: 0.5rem 0;
+    }
+    
+    .category-link {
+        color: #6c757d;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .category-link:hover,
+    .category-link.active {
+        color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <!-- Search and Filter Section -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <form class="d-flex" method="GET">
-                <input type="search" name="search" class="form-control me-2" placeholder="Search by title, author, or ISBN..." value="{{ request.args.get('search', '') }}">
-                <button class="btn btn-outline-primary" type="submit">
-                    <i class="fas fa-search me-1"></i>Search
-                </button>
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4">Explore Our Library</h1>
+        <p class="lead">Discover a world of knowledge through our extensive collection of books.</p>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+            <form action="{{ url_for('core.catalog') }}" method="GET">
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control search-input" 
+                           placeholder="Search by title, author, or ISBN..."
+                           name="search"
+                           value="{{ request.args.get('search', '') }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
             </form>
         </div>
-        <div class="col-md-4">
-            <select class="form-select" name="category" onchange="this.form.submit()">
-                <option value="">All Categories</option>
-                {% for category in categories %}
-                    <option value="{{ category.id }}" {% if request.args.get('category')|int == category.id %}selected{% endif %}>
-                        {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
     </div>
+</div>
 
-    <!-- Books Grid -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for book in books %}
-        <div class="col">
-            <div class="card h-100 shadow-sm">
+<div class="container">
+    <div class="row">
+        <!-- Category Filter -->
+        <div class="col-md-3">
+            <div class="filter-card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Categories</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title text-primary mb-1">{{ book.title }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">by {{ book.author }}</h6>
-                    <p class="card-text">{{ book.description[:150] }}{% if book.description|length > 150 %}...{% endif %}</p>
-                    <div class="mb-2">
-                        <span class="badge bg-info me-2">{{ book.category.name }}</span>
-                        <span class="badge {% if book.available_quantity > 0 %}bg-success{% else %}bg-danger{% endif %}">
-                            {% if book.available_quantity > 0 %}
-                                {{ book.available_quantity }} of {{ book.quantity }} Available
-                            {% else %}
-                                Currently Unavailable
-                            {% endif %}
-                        </span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">ISBN: {{ book.isbn }}</small>
-                        <a href="{{ url_for('core.book_detail', book_id=book.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
-                    </div>
+                    <ul class="category-list">
+                        <li class="category-item">
+                            <a href="{{ url_for('core.catalog') }}" 
+                               class="category-link {% if not request.args.get('category') %}active{% endif %}">
+                                All Categories
+                            </a>
+                        </li>
+                        {% for category in categories %}
+                        <li class="category-item">
+                            <a href="{{ url_for('core.catalog', category=category.id) }}" 
+                               class="category-link {% if request.args.get('category')|int == category.id %}active{% endif %}">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
-        {% endfor %}
+
+        <!-- Book Grid -->
+        <div class="col-md-9">
+            <div class="container mt-4">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                    {% for book in books.items %}
+                    <div class="col">
+                        <div class="card h-100 book-card">
+                            {% if book.cover_image %}
+                            <img src="{{ url_for('static', filename=book.cover_image) }}" class="card-img-top" alt="{{ book.title }}" style="height: 250px; object-fit: cover;">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="bi bi-book" style="font-size: 3rem;"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ book.title }}</h5>
+                                <p class="card-text">
+                                    <strong>Author:</strong> {{ book.author }}<br>
+                                    <strong>ISBN:</strong> {{ book.isbn }}<br>
+                                    <strong>Category:</strong> {{ book.category.name }}
+                                </p>
+                                <div class="mt-auto">
+                                    {% if book.available_quantity > 0 %}
+                                    <span class="badge bg-success mb-2">Available</span>
+                                    {% else %}
+                                    <span class="badge bg-danger mb-2">Not Available</span>
+                                    {% endif %}
+                                    
+                                    {% if book.available_quantity > 0 and not current_user.is_admin %}
+                                    <form method="POST" action="{{ url_for('core.borrow_book', book_id=book.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-primary w-100">Borrow Book</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if books.pages > 1 %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% for page in books.iter_pages() %}
+                        {% if page %}
+                            <li class="page-item {% if page == books.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('core.catalog', page=page, **request.args) }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
     </div>
-
-    <!-- Pagination -->
-    {% if books.pages > 1 %}
-    <nav aria-label="Book catalog pages" class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if books.has_prev %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('core.catalog', page=books.prev_num, **request.args) }}">Previous</a>
-            </li>
-            {% endif %}
-
-            {% for page_num in books.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
-                {% if page_num %}
-                    <li class="page-item {% if page_num == books.page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('core.catalog', page=page_num, **request.args) }}">{{ page_num }}</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if books.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="{{ url_for('core.catalog', page=books.next_num, **request.args) }}">Next</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
 </div>
 {% endblock %}

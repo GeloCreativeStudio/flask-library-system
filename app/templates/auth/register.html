@@ -2,90 +2,230 @@
 
 {% block title %}Register - Library Management System{% endblock %}
 
+{% block extra_css %}
+<style>
+    .register-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem 0;
+    }
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background-color: #ffffff;
+    }
+    .card-header {
+        border-bottom: none;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #20c997 0%, #12b886 100%);
+    }
+    .form-control {
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e1e5ea;
+        background-color: #ffffff;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        background-color: #ffffff;
+        border-color: #20c997;
+        box-shadow: 0 0 0 0.25rem rgba(32, 201, 151, 0.15);
+    }
+    .btn-success {
+        border-radius: 10px;
+        padding: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        background: #20c997;
+        border: none;
+    }
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(32, 201, 151, 0.3);
+        background: #12b886;
+    }
+    .card-footer {
+        background: none;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .text-success {
+        color: #20c997 !important;
+    }
+    .text-success:hover {
+        color: #12b886 !important;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    .input-group-text {
+        background-color: #ffffff;
+        border-right: none;
+        color: #6c757d;
+    }
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    .back-link {
+        color: #6c757d;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .back-link:hover {
+        color: #495057;
+    }
+    .back-link i {
+        font-size: 0.875rem;
+    }
+    .text-decoration-none:hover {
+        color: #0b5ed7 !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white text-center py-3">
-                    <h4 class="mb-0">
-                        <i class="fas fa-user-plus me-2"></i>New Member Registration
-                    </h4>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('auth.register') }}">
-                        {{ form.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ form.library_id.label(class="form-label") }}
-                            {{ form.library_id(class="form-control", placeholder="Choose a library ID") }}
-                            {% if form.library_id.errors %}
-                                {% for error in form.library_id.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
+<div class="register-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header text-white text-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>New Member Registration
+                        </h4>
+                        <p class="text-light mb-0 mt-2 small">Join our library community today!</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" action="{{ url_for('auth.register') }}">
+                            {{ form.hidden_tag() }}
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.library_id.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-id-card"></i>
+                                        </span>
+                                        {{ form.library_id(class="form-control", placeholder="Choose a library ID") }}
+                                    </div>
+                                    {% if form.library_id.errors %}
+                                        {% for error in form.library_id.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.name.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        {{ form.name(class="form-control", placeholder="Enter your full name") }}
+                                    </div>
+                                    {% if form.name.errors %}
+                                        {% for error in form.name.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.email.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        {{ form.email(class="form-control", placeholder="Enter your email") }}
+                                    </div>
+                                    {% if form.email.errors %}
+                                        {% for error in form.email.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.phone.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        {{ form.phone(class="form-control", placeholder="Enter your phone number") }}
+                                    </div>
+                                    {% if form.phone.errors %}
+                                        {% for error in form.phone.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                {{ form.address.label(class="form-label") }}
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-home"></i>
+                                    </span>
+                                    {{ form.address(class="form-control", placeholder="Enter your address") }}
+                                </div>
+                                {% if form.address.errors %}
+                                    {% for error in form.address.errors %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.password.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                        {{ form.password(class="form-control", placeholder="Choose a password") }}
+                                    </div>
+                                    {% if form.password.errors %}
+                                        {% for error in form.password.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    {{ form.confirm_password.label(class="form-label") }}
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                        {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
+                                    </div>
+                                    {% if form.confirm_password.errors %}
+                                        {% for error in form.confirm_password.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                {{ form.submit(class="btn btn-success btn-lg") }}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center py-3">
+                        <span class="text-muted">Already have an account? </span>
+                        <a href="{{ url_for('auth.login') }}" class="text-primary text-decoration-none fw-bold">Login here</a>
+                        <div class="mt-2">
+                            <a href="{{ url_for('core.index') }}" class="back-link">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Back to Home</span>
+                            </a>
                         </div>
-                        <div class="mb-3">
-                            {{ form.name.label(class="form-label") }}
-                            {{ form.name(class="form-control", placeholder="Enter your full name") }}
-                            {% if form.name.errors %}
-                                {% for error in form.name.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control", placeholder="Enter your email") }}
-                            {% if form.email.errors %}
-                                {% for error in form.email.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.phone.label(class="form-label") }}
-                            {{ form.phone(class="form-control", placeholder="Enter your phone number") }}
-                            {% if form.phone.errors %}
-                                {% for error in form.phone.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.address.label(class="form-label") }}
-                            {{ form.address(class="form-control", placeholder="Enter your address") }}
-                            {% if form.address.errors %}
-                                {% for error in form.address.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control", placeholder="Choose a password") }}
-                            {% if form.password.errors %}
-                                {% for error in form.password.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="mb-4">
-                            {{ form.confirm_password.label(class="form-label") }}
-                            {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
-                            {% if form.confirm_password.errors %}
-                                {% for error in form.confirm_password.errors %}
-                                    <div class="text-danger">{{ error }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <div class="d-grid gap-2">
-                            {{ form.submit(class="btn btn-success btn-lg") }}
-                        </div>
-                    </form>
-                </div>
-                <div class="card-footer text-center py-3">
-                    <span>Already have an account? </span>
-                    <a href="{{ url_for('auth.login') }}" class="text-success text-decoration-none">Login here</a>
+                    </div>
                 </div>
             </div>
         </div>

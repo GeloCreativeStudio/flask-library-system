@@ -4,124 +4,194 @@
 
 {% block extra_css %}
 <style>
-    .table-responsive {
-        margin-top: 20px;
+    .admin-container {
+        padding: 2rem 0;
+        background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+        min-height: calc(100vh - 56px);
     }
+    
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        color: #212529;
+        font-weight: 600;
+        font-size: 2rem;
+    }
+    
     .filter-section {
-        margin-bottom: 20px;
-        padding: 15px;
+        background: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .filter-section .form-select {
+        max-width: 200px;
+    }
+    
+    .table-container {
+        background: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .table {
+        margin: 0;
+    }
+    
+    .table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        border-top: none;
+        padding: 1rem 1.5rem;
+    }
+    
+    .table td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+    }
+    
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
         background-color: #f8f9fa;
-        border-radius: 5px;
     }
+    
+    .status-badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
     .status-borrowed {
-        color: #0d6efd;
+        background: #cfe2ff;
+        color: #084298;
     }
+    
     .status-returned {
-        color: #198754;
+        background: #d1e7dd;
+        color: #0f5132;
     }
+    
     .status-overdue {
+        background: #f8d7da;
+        color: #842029;
+    }
+    
+    .fine-amount {
+        font-weight: 600;
         color: #dc3545;
     }
-    .fine-amount {
-        font-weight: bold;
-        color: #dc3545;
+    
+    .btn-action {
+        padding: 0.375rem 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">Manage Borrows</h2>
-    
-    <!-- Filters -->
-    <div class="filter-section">
-        <form method="GET" class="row g-3">
-            <div class="col-md-4">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {% if request.args.get('status') == 'all' %}selected{% endif %}>All</option>
-                    <option value="borrowed" {% if request.args.get('status') == 'borrowed' %}selected{% endif %}>Borrowed</option>
-                    <option value="returned" {% if request.args.get('status') == 'returned' %}selected{% endif %}>Returned</option>
-                    <option value="overdue" {% if request.args.get('status') == 'overdue' %}selected{% endif %}>Overdue</option>
-                </select>
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="overdue" value="true" 
-                           {% if request.args.get('overdue') %}checked{% endif %}
-                           onchange="this.form.submit()" id="overdueCheck">
-                    <label class="form-check-label" for="overdueCheck">
-                        Show Only Overdue
-                    </label>
-                </div>
-            </div>
-        </form>
-    </div>
+<div class="admin-container">
+    <div class="container">
+        <div class="page-header">
+            <h1>Manage Borrows</h1>
+        </div>
 
-    <!-- Borrows Table -->
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Book Title</th>
-                    <th>User</th>
-                    <th>Borrowed Date</th>
-                    <th>Due Date</th>
-                    <th>Returned Date</th>
-                    <th>Status</th>
-                    <th>Fine</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for borrow in borrows %}
-                <tr>
-                    <td>{{ borrow.book.title }}</td>
-                    <td>{{ borrow.user.name }}</td>
-                    <td>{{ borrow.borrowed_at.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ borrow.due_date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ borrow.returned_at.strftime('%Y-%m-%d') if borrow.returned_at else 'Not returned' }}</td>
-                    <td>
-                        {% if borrow.status == 'overdue' %}
-                            <span class="badge bg-danger">Overdue</span>
-                            <small class="d-block text-danger mt-1">{{ (datetime.utcnow() - borrow.due_date).days }} days</small>
-                        {% elif borrow.status == 'returned' %}
-                            <span class="badge bg-secondary">Returned</span>
-                            {% if borrow.returned_at > borrow.due_date %}
-                                <small class="d-block text-danger mt-1">{{ (borrow.returned_at - borrow.due_date).days }} days late</small>
-                            {% endif %}
-                        {% else %}
-                            <span class="badge bg-success">Active</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if borrow.fine_amount > 0 %}
-                            <span class="fine-amount">₱{{ "%.2f"|format(borrow.fine_amount) }}</span>
-                            {% if borrow.status == 'overdue' %}
-                                <small class="d-block text-danger">(Accumulating)</small>
-                            {% endif %}
-                        {% else %}
-                            ₱0.00
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if borrow.status == 'borrowed' %}
-                            <button class="btn btn-sm btn-success" onclick="markAsReturned({{ borrow.id }})">
-                                <i class="fas fa-check me-1"></i>Return
-                            </button>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form method="get" class="d-flex gap-3 align-items-center">
+                <div class="form-group">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {% if request.args.get('status') == 'all' %}selected{% endif %}>All Status</option>
+                        <option value="borrowed" {% if request.args.get('status') == 'borrowed' %}selected{% endif %}>Borrowed</option>
+                        <option value="returned" {% if request.args.get('status') == 'returned' %}selected{% endif %}>Returned</option>
+                        <option value="overdue" {% if request.args.get('status') == 'overdue' %}selected{% endif %}>Overdue</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Borrows Table -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>User</th>
+                            <th>Borrowed Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Fine</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for borrow in borrows %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('core.book_details', book_id=borrow.book.id) }}" class="text-decoration-none">
+                                    {{ borrow.book.title }}
+                                </a>
+                            </td>
+                            <td>{{ borrow.user.name }}</td>
+                            <td>{{ borrow.borrowed_at.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ borrow.due_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <span class="status-badge status-{{ borrow.status }}">
+                                    {{ borrow.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if borrow.fine_amount > 0 %}
+                                <span class="fine-amount">₱{{ "%.2f"|format(borrow.fine_amount) }}</span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if borrow.status == 'borrowed' or borrow.status == 'overdue' %}
+                                <button type="button" 
+                                        class="btn btn-primary btn-action"
+                                        onclick="returnBook({{ borrow.id }})">
+                                    <i class="fas fa-undo-alt"></i>
+                                    <span>Return</span>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function markAsReturned(borrowId) {
+    function returnBook(borrowId) {
         if (confirm('Are you sure you want to mark this book as returned?')) {
             fetch(`/admin/borrows/${borrowId}/return`, {
                 method: 'POST',
@@ -130,33 +200,19 @@
                     'X-CSRFToken': '{{ csrf_token() }}'
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => Promise.reject(data.message));
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     location.reload();
                 } else {
-                    alert('Error: ' + data.message);
+                    alert(data.message || 'Error returning book');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error: ' + (error.message || 'Failed to mark book as returned'));
+                alert('Error returning book');
             });
         }
     }
-
-    // Display flash messages
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                alert('{{ message }}');
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
 </script>
 {% endblock %}

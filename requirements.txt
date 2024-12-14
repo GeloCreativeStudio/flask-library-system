@@ -23,5 +23,8 @@ email-validator>=2.1.0.post1
 python-dotenv>=1.0.0
 blinker>=1.8.2
 
+# HTTP Client
+requests>=2.31.0
+
 # Windows Compatibility
 colorama>=0.4.6  # Required for Windows colored output
