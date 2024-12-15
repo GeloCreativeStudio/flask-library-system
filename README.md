@@ -225,6 +225,17 @@ flask-library-system/
 
 ## 📖 Documentation
 
+### Quick Documentation
+For a comprehensive overview of the system's architecture, performance analysis, and implementation details, please refer to our detailed documentation:
+[Flask-Based Library Management System Documentation (PDF)](docs/Flask_Based_Library_Management_System_2024.pdf)
+
+This document provides:
+- Complete system architecture overview
+- Detailed performance metrics and analysis
+- Security implementation details
+- Development decisions and rationale
+- API documentation and usage examples
+
 ### Technical Documentation
 The project includes comprehensive technical documentation in LaTeX format under the `docs/latex` directory:
 
@@ -239,6 +250,8 @@ To build the documentation:
 3. Run `pdflatex main.tex` twice to resolve references
 4. Run `bibtex main` to generate bibliography
 5. Run `pdflatex main.tex` again to finalize
+
+The generated PDF will be available as `docs/Flask_Based_Library_Management_System_2024.pdf`.
 
 ### Performance Metrics
 Recent performance testing has shown:
