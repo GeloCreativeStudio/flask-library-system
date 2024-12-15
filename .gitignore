@@ -79,6 +79,7 @@ coverage.xml
 *.ps
 *.eps
 *.pdf
+!docs/Flask_Based_Library_Management_System_2024.pdf
 *.bbl
 *.bcf
 *.blg
